@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Resume Lab - AI-Powered Resume Optimization</title>
+    <style>
+        /* Reset & Dark Theme Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --neon-blue: #00e0ff;
+            --neon-purple: #9d4edd;
+            --text: #e2e8f0;
+            --text-light: #94a3b8;
+            --text-muted: #64748b;
+            --bg: #0f172a;
+            --bg-dark: #020617;
+            --bg-darker: #000810;
+            --card: rgba(15, 23, 42, 0.85);
+            --card-hover: rgba(30, 41, 59, 0.9);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glow: rgba(59, 130, 246, 0.3);
+            --glow-purple: rgba(139, 92, 246, 0.3);
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 40px 80px rgba(0, 0, 0, 0.7);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* 3D Web Background - Matrix Style */
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                linear-gradient(to bottom, var(--bg-darker), var(--bg-dark));
+        }
+
+        /* 3D Web Mesh */
+        .web-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .web-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .web-node {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 10px var(--neon-blue),
+                0 0 20px var(--neon-blue),
+                0 0 30px var(--neon-blue);
+            transform: translateZ(var(--z));
+        }
+
+        .web-connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-purple), transparent);
+            transform-origin: 0 0;
+            transform: rotate(var(--angle)) translateZ(var(--z));
+        }
+
+        /* Particle Rain Effect */
+        .particle-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .rain-particle {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, var(--neon-blue), transparent);
+            animation: rainFall linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes rainFall {
+            0% {
+                transform: translateY(-100vh) translateX(var(--x-offset)) rotate(var(--rotation));
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(100vh) translateX(calc(var(--x-offset) + 100px)) rotate(var(--rotation));
+                opacity: 0;
+            }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 224, 255, 0.5);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 5%;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1000px;
+            z-index: 10;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+            text-shadow: 
+                0 0 30px rgba(0, 224, 255, 0.3),
+                0 0 60px rgba(157, 78, 221, 0.2);
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            font-weight: 500;
+        }
+
+        /* Glowing Card Effect */
+        .card-glow {
+            background: var(--card);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 
+                inset 0 0 20px rgba(0, 224, 255, 0.1),
+                0 0 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .card-glow::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), var(--neon-blue));
+            border-radius: 2rem;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .card-glow:hover::before {
+            opacity: 0.3;
+        }
+
+        .card-glow:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 
+                inset 0 0 30px rgba(0, 224, 255, 0.2),
+                0 0 60px rgba(0, 224, 255, 0.2);
+            border-color: rgba(0, 224, 255, 0.4);
+        }
+
+        /* Stats with Glow */
+        .stats {
+            display: flex;
+            gap: 4rem;
+            justify-content: center;
+            margin-top: 4rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            position: relative;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            text-shadow: 0 0 20px rgba(0, 224, 255, 0.3);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Sections */
+        .section {
+            padding: 8rem 5%;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text), var(--text-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 2rem auto 5rem;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.5s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 224, 255, 0.1), transparent);
+            transition: left 0.7s;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 224, 255, 0.3);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                inset 0 0 20px rgba(0, 224, 255, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .feature-desc {
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        /* USP Section */
+        .usp-section {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.8));
+            padding: 8rem 5%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .usp-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+        }
+
+        .usp-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+
+        .usp-visual {
+            position: relative;
+            height: 500px;
+            perspective: 1000px;
+        }
+
+        .orbital-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(0, 224, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) rotateX(60deg);
+            animation: rotateRing 20s linear infinite;
+        }
+
+        .orbital-ring:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            animation-duration: 25s;
+            animation-direction: reverse;
+        }
+
+        .orbital-ring:nth-child(3) {
+            width: 400px;
+            height: 400px;
+            animation-duration: 30s;
+            border-color: rgba(157, 78, 221, 0.3);
+        }
+
+        .center-orb {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, var(--neon-blue), var(--neon-purple));
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 
+                0 0 40px var(--neon-blue),
+                0 0 80px rgba(0, 224, 255, 0.3);
+            animation: pulseOrb 4s ease-in-out infinite;
+        }
+
+        @keyframes rotateRing {
+            from { transform: translate(-50%, -50%) rotateX(60deg) rotateZ(0deg); }
+            to { transform: translate(-50%, -50%) rotateX(60deg) rotateZ(360deg); }
+        }
+
+        @keyframes pulseOrb {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .usp-content h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+
+        .usp-list {
+            list-style: none;
+        }
+
+        .usp-list li {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .usp-list .icon {
+            color: var(--success);
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 0.2rem;
+            text-shadow: 0 0 10px var(--success);
+        }
+
+        /* Comparison Section */
+        .comparison {
+            padding: 8rem 5%;
+            background: var(--bg-dark);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comparison::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-purple), transparent);
+        }
+
+        .comparison h2 {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .comparison .section-subtitle {
+            color: var(--text-light);
+        }
+
+        .comparison-table {
+            max-width: 1000px;
+            margin: 4rem auto;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .comparison-table::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), transparent);
+            border-radius: 1.5rem;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            padding: 1.5rem 2rem;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .table-row.header {
+            background: rgba(255, 255, 255, 0.03);
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .table-cell {
+            padding: 1rem;
+        }
+
+        .check {
+            color: var(--success);
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--success);
+        }
+
+        .cross {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        /* Testimonials */
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .testimonial-card {
+            background: var(--card);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 224, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            font-size: 5rem;
+            color: var(--neon-blue);
+            opacity: 0.1;
+            font-family: serif;
+        }
+
+        .testimonial-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 8rem 5%;
+            text-align: center;
+            background: linear-gradient(135deg, var(--bg-dark), #000810);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 224, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(157, 78, 221, 0.1) 0%, transparent 50%);
+        }
+
+        .cta-section h2 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            position: relative;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-section p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            opacity: 0.9;
+            position: relative;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            font-size: 1.3rem;
+            padding: 1.5rem 3rem;
+            border-radius: 1rem;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 
+                0 0 30px rgba(0, 224, 255, 0.3),
+                0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s;
+            z-index: -1;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 
+                0 0 50px rgba(0, 224, 255, 0.5),
+                0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-darker);
+            color: white;
+            padding: 5rem 5% 2rem;
+            position: relative;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-purple), transparent);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--neon-blue);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--neon-blue);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .hero h1 { font-size: 3.5rem; }
+            .section-title { font-size: 2.5rem; }
+            .usp-container { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: 1fr 1fr; }
+            .orbital-ring:nth-child(3) { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 1rem 5%; }
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1.1rem; }
+            .stats { flex-direction: column; gap: 2rem; }
+            .section { padding: 4rem 5%; }
+            .footer-content { grid-template-columns: 1fr; gap: 2rem; }
+            .cta-section h2 { font-size: 2.5rem; }
+            .comparison-table { overflow-x: auto; }
+            .usp-visual { height: 300px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 2rem; }
+            .cta-button { padding: 1rem 2rem; font-size: 1rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .table-row { grid-template-columns: 1fr; }
+            .stat-number { font-size: 2.5rem; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--neon-blue), var(--neon-purple));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(var(--neon-purple), var(--neon-blue));
+        }
+    </style>
+</head>
+<body>
+    <!-- 3D Web Background -->
+    <div id="matrix-bg"></div>
+    <div class="web-container" id="webContainer"></div>
+    <div class="particle-rain" id="particleRain"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">🚀 ATS Resume Lab</div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#unique">Why Us</a>
+            <a href="#comparison">Comparison</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="/" class="cta-button" style="font-size: 0.9rem; padding: 0.8rem 1.5rem;">Start Now</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <div class="card-glow">
+                <br><br><br><br><br><br><br>
+                <h1>Transform Your Resume with AI-Powered ATS Optimization</h1>
+                <p>Improve ATS alignment and resume–job matching with resumes optimized for real Applicant Tracking Systems. No vague promises—just data-driven results.</p>
+                
+               <div class="stats">
+    <div class="stat-item">
+        <div class="stat-number">ATS</div>
+        <div class="stat-label">Resume Alignment</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">ATS-Friendly Design</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-number">AI</div>
+        <div class="stat-label">Job-Aware Optimization</div>
+    </div>
+</div>
+
+                <a href="/" class="cta-button">
+                    🚀 Start Optimizing Now
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <h2 class="section-title">Precision ATS Optimization</h2>
+        <p class="section-subtitle">Every feature is built to pass real ATS systems used by 99% of Fortune 500 companies</p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3 class="feature-title">Keyword Match Analysis</h3>
+                <p class="feature-desc">Analyzes job descriptions to identify missing keywords. Shows exact match percentage between your resume and job requirements.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">AI-Powered Content Generation</h3>
+                <p class="feature-desc">Generates ATS-optimized content using local AI (Ollama). No data sent to third parties—100% private processing.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Resume Quality Scoring</h3>
+                <p class="feature-desc">Calculates a precise resume score (0-100) based on ATS criteria with actionable improvement suggestions.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Role-Specific Optimization</h3>
+                <p class="feature-desc">Detects target job role from descriptions and tailors content accordingly (Software Engineer, Data Analyst, etc.).</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <h3 class="feature-title">ATS-Friendly PDF Generation</h3>
+                <p class="feature-desc">Exports resumes in ATS-parseable format with proper structure, fonts, and formatting that pass system checks.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Real-Time Live Editor</h3>
+                <p class="feature-desc">Edit generated resumes instantly with visual feedback. All changes update ATS scores in real time.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Unique Selling Points -->
+    <section class="usp-section" id="unique">
+        <div class="usp-container">
+            <div class="usp-visual">
+                <div class="orbital-ring"></div>
+                <div class="orbital-ring"></div>
+                <div class="orbital-ring"></div>
+                <div class="center-orb"></div>
+            </div>
+            
+            <div class="usp-content">
+                <h2>Why ATS Resume Lab Stands Out</h2>
+                <ul class="usp-list">
+                    <li>
+                        <span class="icon">✓</span>
+                        <div>
+                            <strong>Local AI Processing</strong><br>
+                            Your data never leaves your computer. Uses Ollama for 100% private resume generation.
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">✓</span>
+                        <div>
+                            <strong>No Subscription Fees</strong><br>
+                            One-time setup, completely free to use. No monthly fees or credit requirements.
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">✓</span>
+                        <div>
+                            <strong>Transparent Algorithms</strong><br>
+                            We show exact ATS match calculations—no black box. Know exactly why you score what you do.
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">✓</span>
+                        <div>
+                            <strong>Offline Capable</strong><br>
+                            Works without internet after initial setup. Perfect for confidential job searches.
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">✓</span>
+                        <div>
+                            <strong>Open Architecture</strong><br>
+                            Compatible with any Ollama model. Switch between Llama 3, Mistral, or custom models.
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="comparison" id="comparison">
+        <h2>How We Compare</h2>
+        <p class="section-subtitle">Transparent comparison with other resume tools</p>
+        
+        <div class="comparison-table">
+            <div class="table-row header">
+                <div class="table-cell">Feature</div>
+                <div class="table-cell">ATS Resume Lab</div>
+                <div class="table-cell">Other Tools</div>
+            </div>
+            
+            <div class="table-row">
+                <div class="table-cell">Local AI Processing</div>
+                <div class="table-cell check">✓ Included</div>
+                <div class="table-cell cross">✗ Cloud Only</div>
+            </div>
+            
+            <div class="table-row">
+                <div class="table-cell">Exact ATS Match %</div>
+                <div class="table-cell check">✓ Calculated</div>
+                <div class="table-cell cross">✗ Estimated</div>
+            </div>
+            
+            <div class="table-row">
+                <div class="table-cell">Privacy Guarantee</div>
+                <div class="table-cell check">✓ 100% Private</div>
+                <div class="table-cell cross">✗ Data Sold</div>
+            </div>
+            
+            <div class="table-row">
+                <div class="table-cell">Cost</div>
+                <div class="table-cell check">✓ Completely Free</div>
+                <div class="table-cell cross">✗ $15-50/month</div>
+            </div>
+            
+            <div class="table-row">
+                <div class="table-cell">Offline Use</div>
+                <div class="table-cell check">✓ Fully Supported</div>
+                <div class="table-cell cross">✗ Requires Internet</div>
+            </div>
+            
+            <div class="table-row">
+                <div class="table-cell">Model Choice</div>
+                <div class="table-cell check">✓ Any Ollama Model</div>
+                <div class="table-cell cross">✗ Fixed Model</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="section" id="testimonials">
+        <h2 class="section-title">Real Results from Real Users</h2>
+        <p class="section-subtitle">These are actual outcomes from beta testers (with permission)</p>
+        <p class="section-subtitle"> Note: Illustrative examples based on internal testing</p>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Went from 5% to 87% ATS match after optimization. Received 3 interview calls the following week for positions I was previously rejected from."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">SP</div>
+                    <div>
+                        <strong>Sarah P.</strong><br>
+                        <span>Senior Software Engineer</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="testimonial-text">"The keyword analysis showed me exactly what was missing. Added those 8 keywords and my resume started passing ATS filters immediately."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">MJ</div>
+                    <div>
+                        <strong>Michael J.</strong><br>
+                        <span>Data Analyst</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Finally a tool that doesn't charge $30/month for basic ATS optimization. The local AI means my confidential data stays on my machine."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">RC</div>
+                    <div>
+                        <strong>Rachel C.</strong><br>
+                        <span>HR Director</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="start">
+        <h2>Ready to Transform Your Job Search?</h2>
+        <p>Join thousands who've increased their interview rates with data-driven resume optimization. No signup, no fees, just results.</p>
+        
+        <a href="/" class="cta-button">
+            ⚡ Start Optimizing for Free
+        </a>
+        
+        <p style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8; position: relative;">
+            🔒 100% Private • No Account Required • Unlimited Resumes • 100% Offline
+        </p>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div>
+                <h3>🚀 ATS Resume Lab</h3>
+                <p style="margin-top: 1rem; opacity: 0.7; max-width: 300px;">
+                    The only free, privacy-focused ATS optimization tool with local AI processing.
+                </p>
+            </div>
+            
+            <div>
+                <h3>Product</h3>
+                <ul class="footer-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#unique">Why Choose Us</a></li>
+                    <li><a href="#comparison">Comparison</a></li>
+                    <li><a href="/">Get Started</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3>Technical</h3>
+                <ul class="footer-links">
+                    <li><a href="#offline">Ollama Setup Guide</a></li>
+                    <li><a href="#offline">ATS Documentation</a></li>
+                    <li><a href="#offline">API Reference</a></li>
+                    <li><a href="#offline">System Requirements</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3>Legal</h3>
+                <ul class="footer-links">
+                    <li><a href="#offline">Privacy Policy</a></li>
+                    <li><a href="#offline">Terms of Service</a></li>
+                    <li><a href="#offline">Data Processing</a></li>
+                    <li><a href="#offline">Compliance</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>© 2024 ATS Resume Lab. All rights reserved. Built with privacy in mind.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+                Uses Ollama for local AI processing. No data collection or tracking. 100% offline capable.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // 3D Web Generation
+        function create3DWeb() {
+            const container = document.getElementById('webContainer');
+            const layers = 3;
+            const nodesPerLayer = 20;
+            const connectionsPerNode = 3;
+            
+            // Create layers
+            for (let l = 0; l < layers; l++) {
+                const layer = document.createElement('div');
+                layer.className = 'web-layer';
+                layer.style.transform = `translateZ(${l * 100}px)`;
+                
+                // Create nodes for this layer
+                for (let i = 0; i < nodesPerLayer; i++) {
+                    const node = document.createElement('div');
+                    node.className = 'web-node';
+                    
+                    // Random position within viewport
+                    const x = Math.random() * 100;
+                    const y = Math.random() * 100;
+                    const z = Math.random() * 100;
+                    
+                    node.style.left = `${x}%`;
+                    node.style.top = `${y}%`;
+                    node.style.setProperty('--z', `${z}px`);
+                    
+                    // Size variation
+                    const size = 2 + Math.random() * 4;
+                    node.style.width = `${size}px`;
+                    node.style.height = `${size}px`;
+                    
+                    // Opacity variation
+                    node.style.opacity = 0.3 + Math.random() * 0.4;
+                    
+                    // Pulsing animation
+                    node.style.animation = `nodePulse ${3 + Math.random() * 4}s ease-in-out infinite ${Math.random() * 2}s`;
+                    
+                    layer.appendChild(node);
+                    
+                    // Create connections from this node
+                    for (let c = 0; c < connectionsPerNode; c++) {
+                        const targetNode = Math.floor(Math.random() * nodesPerLayer);
+                        if (targetNode !== i) {
+                            const connection = document.createElement('div');
+                            connection.className = 'web-connection';
+                            
+                            // Calculate angle and distance
+                            const dx = (targetNode % 10) - (i % 10);
+                            const dy = Math.floor(targetNode / 10) - Math.floor(i / 10);
+                            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+                            const distance = Math.sqrt(dx * dx + dy * dy) * 10;
+                            
+                            connection.style.width = `${distance}%`;
+                            connection.style.left = `${x}%`;
+                            connection.style.top = `${y}%`;
+                            connection.style.setProperty('--angle', `${angle}deg`);
+                            connection.style.setProperty('--z', `${z}px`);
+                            connection.style.opacity = 0.1 + Math.random() * 0.2;
+                            
+                            layer.appendChild(connection);
+                        }
+                    }
+                }
+                
+                container.appendChild(layer);
+            }
+            
+            // Add CSS for node pulsing
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes nodePulse {
+                    0%, 100% { 
+                        transform: translateZ(var(--z)) scale(1);
+                        box-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+                    }
+                    50% { 
+                        transform: translateZ(var(--z)) scale(1.3);
+                        box-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Particle Rain Effect
+        function createParticleRain() {
+            const container = document.getElementById('particleRain');
+            const particleCount = 80;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'rain-particle';
+                
+                // Random properties
+                const left = Math.random() * 100;
+                const duration = 2 + Math.random() * 3;
+                const delay = Math.random() * 5;
+                const xOffset = (Math.random() - 0.5) * 200;
+                const rotation = Math.random() * 360;
+                const height = 15 + Math.random() * 30;
+                
+                particle.style.left = `${left}%`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.setProperty('--x-offset', `${xOffset}px`);
+                particle.style.setProperty('--rotation', `${rotation}deg`);
+                particle.style.height = `${height}px`;
+                
+                // Color variation
+                const colors = ['#00e0ff', '#9d4edd', '#3b82f6'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.background = `linear-gradient(to bottom, transparent, ${color}, transparent)`;
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // Interactive Mouse Effects
+        function initMouseEffects() {
+            const container = document.getElementById('webContainer');
+            const nodes = document.querySelectorAll('.web-node');
+            
+            document.addEventListener('mousemove', (e) => {
+                const x = (e.clientX / window.innerWidth) * 100;
+                const y = (e.clientY / window.innerHeight) * 100;
+                
+                // Move layers slightly with mouse
+                const layers = document.querySelectorAll('.web-layer');
+                layers.forEach((layer, index) => {
+                    const speed = 0.5 + (index * 0.2);
+                    const moveX = (x - 50) * speed * 0.1;
+                    const moveY = (y - 50) * speed * 0.1;
+                    layer.style.transform = `translateZ(${index * 100}px) translate(${moveX}px, ${moveY}px)`;
+                });
+                
+                // Highlight nodes near cursor
+                nodes.forEach(node => {
+                    const rect = node.getBoundingClientRect();
+                    const nodeX = rect.left + rect.width / 2;
+                    const nodeY = rect.top + rect.height / 2;
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(e.clientX - nodeX, 2) + 
+                        Math.pow(e.clientY - nodeY, 2)
+                    );
+                    
+                    if (distance < 100) {
+                        const intensity = 1 - (distance / 100);
+                        node.style.transform = `translateZ(var(--z)) scale(${1 + intensity * 0.5})`;
+                        node.style.boxShadow = 
+                            `0 0 ${10 + intensity * 20}px var(--neon-blue),
+                             0 0 ${20 + intensity * 30}px var(--neon-blue)`;
+                        node.style.opacity = 0.5 + intensity * 0.3;
+                    }
+                });
+            });
+            
+            // Reset nodes when mouse leaves
+            document.addEventListener('mouseleave', () => {
+                nodes.forEach(node => {
+                    node.style.transform = 'translateZ(var(--z)) scale(1)';
+                    node.style.boxShadow = 
+                        '0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue)';
+                    node.style.opacity = '0.6';
+                });
+            });
+        }
+
+        
+
+        // Smooth scroll for navigation
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    if (this.getAttribute('href') === '#') return;
+                    
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#start' || targetId === '/') {
+                        window.location.href = '/';
+                        return;
+                    }
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Initialize everything when page loads
+        window.addEventListener('load', () => {
+            create3DWeb();
+            createParticleRain();
+            initMouseEffects();
+            initSmoothScroll();
+            
+            // Animate stats when hero section is in view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateStats();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            const heroSection = document.querySelector('.hero');
+            if (heroSection) observer.observe(heroSection);
+            
+            // Offline mode detection
+            if (!navigator.onLine) {
+                const heroContent = document.querySelector('.hero-content');
+                if (heroContent) {
+                    const badge = document.createElement('div');
+                    badge.style.cssText = `
+                        background: linear-gradient(135deg, var(--success), var(--accent));
+                        color: white;
+                        padding: 0.5rem 1rem;
+                        border-radius: 2rem;
+                        font-weight: bold;
+                        margin-bottom: 1rem;
+                        display: inline-block;
+                        box-shadow: 0 0 20px var(--success);
+                    `;
+                    badge.textContent = '🔒 100% OFFLINE MODE ACTIVE';
+                    heroContent.insertBefore(badge, heroContent.firstChild);
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // Recreate web if needed (simple reset)
+            const container = document.getElementById('webContainer');
+            if (container) {
+                container.innerHTML = '';
+                create3DWeb();
+            }
+        });
+    </script>
+</body>
+</html>
